@@ -1,122 +1,107 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Navigation from './components/Navigation';
+import HeroSection from './components/HeroSection';
+import ManifestoSection from './components/ManifestoSection';
+import GlassCards from './components/GlassCards';
+import Timeline from './components/Timeline';
+import ContactSection from './components/ContactSection';
+import AmbientSound from './components/AmbientSound';
+import Footer from './components/Footer';
+import { useLenis } from './hooks/useLenis';
 
-function App() {
-  const [count, setCount] = useState(0)
+gsap.registerPlugin(ScrollTrigger);
+
+export default function App() {
+  const cursorOuterRef = useRef<HTMLDivElement>(null);
+  const cursorInnerRef = useRef<HTMLDivElement>(null);
+  useLenis(); // Initialize Lenis smooth scroll
+
+  useEffect(() => {
+    // Custom cursor
+    const moveCursor = (e: MouseEvent) => {
+      if (cursorOuterRef.current) {
+        gsap.to(cursorOuterRef.current, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.15,
+          ease: 'power2.out',
+        });
+      }
+      if (cursorInnerRef.current) {
+        gsap.to(cursorInnerRef.current, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.06,
+          ease: 'none',
+        });
+      }
+    };
+
+    // Cursor scale on interactive elements
+    const handleHoverIn = () => {
+      gsap.to(cursorOuterRef.current, {
+        scale: 1.8,
+        borderColor: 'rgba(255, 223, 0, 0.8)',
+        duration: 0.3,
+      });
+    };
+
+    const handleHoverOut = () => {
+      gsap.to(cursorOuterRef.current, {
+        scale: 1,
+        borderColor: 'rgba(255, 159, 28, 0.6)',
+        duration: 0.3,
+      });
+    };
+
+    window.addEventListener('mousemove', moveCursor);
+
+    const interactives = document.querySelectorAll('a, button, [data-cursor]');
+    interactives.forEach((el) => {
+      el.addEventListener('mouseenter', handleHoverIn);
+      el.addEventListener('mouseleave', handleHoverOut);
+    });
+
+    return () => {
+      window.removeEventListener('mousemove', moveCursor);
+      interactives.forEach((el) => {
+        el.removeEventListener('mouseenter', handleHoverIn);
+        el.removeEventListener('mouseleave', handleHoverOut);
+      });
+    };
+  }, []);
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      {/* Film grain noise overlay */}
+      <div className="noise-overlay" />
 
-      <div className="ticks"></div>
+      {/* CRT Scan line */}
+      <div className="scan-line" />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Custom cursor */}
+      <div ref={cursorOuterRef} className="cursor-outer" />
+      <div ref={cursorInnerRef} className="cursor-inner" />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      {/* Navigation */}
+      <Navigation />
+
+      {/* Main content */}
+      <main>
+        <HeroSection />
+        <ManifestoSection />
+        <GlassCards />
+        <Timeline />
+        <ContactSection />
+      </main>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Ambient Sound Toggle */}
+      <AmbientSound />
     </>
-  )
+  );
 }
-
-export default App
